@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load as_bootstrap from bootstrap %}
+{% load qr_tags %}
+{% load i18n %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+{% endblock%}
+
+{% block content %}
+<div class="row">
+  <div class="span4">
+    {% qr_from_object couponcode "120" %}<br>
+    <b>{{ couponcode.code }}</b><br><br>
+    {% if couponcode.can_be_used %}
+        <a class="btn btn-large btn-success" href="#"><i class="icon-ok"></i> {% trans "Redeem coupon" %}</a>
+    {% else %}
+        {% if coupon.redeemed_on %}
+            <a class="btn btn-large btn-danger" href="#"><i class="icon-remove"></i> {% trans "Coupon already used" %}</a>
+        {% else %}
+            <a class="btn btn-large btn-danger" href="#"><i class="icon-remove"></i> {% trans "Coupon expired" %}</a>
+        {% endif %}
+    {% endif %}
+  </div>
+  <div class="span8">
+    <h2>{{ couponcode.coupon.name|capfirst }}</h2>
+    {{ couponcode.coupon.short_description|capfirst }} <br><br>
+    <div class="row">
+        <div class="span6">
+            <table class="table">
+                <tr>
+                    <td>{% trans "Valid from" %}</td><td>{{ couponcode.coupon.valid_from|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <td>{% trans "Valid until" %}</td><td>{{ couponcode.coupon.valid_until|default:"-" }}</td>
+                </tr>
+                <tr><td></td><td></td></tr>
+            </table>
+        </div>
+    </div>
+    <pre>{{ couponcode.coupon.terms|default:"" }}</pre>
+  </div>
+</div>
+{% endblock %}

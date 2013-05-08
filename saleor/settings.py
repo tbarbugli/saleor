@@ -28,7 +28,7 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 MEDIA_URL = '/media/'
@@ -54,7 +54,7 @@ TEMPLATE_LOADERS = [
 ]
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = ''
+SECRET_KEY = '12312312313123123'
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django.contrib.sites',
 
     # External apps
     'south',
@@ -105,6 +106,9 @@ INSTALLED_APPS = [
     'userprofile',
     'registration',
     'payment',
+    'coupon',
+    'delivery',
+    'qrcode',
 ]
 
 LOGGING = {

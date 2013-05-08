@@ -6,6 +6,7 @@ from satchless.item import ItemSet, Partitioner
 
 from delivery import DummyShipping, DigitalDelivery
 from product.models import StockedProduct, DigitalShip
+from coupon.models import Coupon
 
 
 class BaseGroup(list, ItemSet):
@@ -77,7 +78,7 @@ class CartPartitioner(Partitioner):
         return item.product.__class__
 
     def get_delivery_class(self, classifier):
-        if issubclass(classifier, DigitalShip):
+        if issubclass(classifier, (DigitalShip, Coupon)):
             return DigitalGroup
         return ShippedGroup
 

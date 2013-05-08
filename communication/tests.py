@@ -1,7 +1,11 @@
 from communication.mail import SUBJECT, TEXT, HTML, send_email, render_blocks
 
 from mock import Mock, patch, sentinel
-from unittest2 import TestCase
+
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from django.template.loader_tags import BlockNode
 

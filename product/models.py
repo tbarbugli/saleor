@@ -10,8 +10,8 @@ from django_prices.models import PriceField
 from mptt.models import MPTTModel
 from satchless.item import Item
 from unidecode import unidecode
-import re
 
+import re
 
 class SubtypedQuerySet(QuerySet):
 
@@ -146,7 +146,6 @@ class StockedProduct(models.Model):
 
 
 class PhysicalProduct(models.Model):
-
     weight = models.PositiveIntegerField()
     length = models.PositiveIntegerField(blank=True, default=0)
     width = models.PositiveIntegerField(blank=True, default=0)
@@ -157,10 +156,8 @@ class PhysicalProduct(models.Model):
 
 
 class DigitalShip(Product):
-
-    url = models.URLField()
-
+    pass
 
 class Ship(Product, StockedProduct, PhysicalProduct):
-
     pass
+

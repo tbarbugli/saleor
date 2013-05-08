@@ -3,7 +3,11 @@ from django.core.urlresolvers import resolve
 
 from mock import call, Mock, MagicMock, patch, sentinel
 from purl import URL
-from unittest2 import TestCase
+
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from .forms import RegisterOrResetPasswordForm, OAuth2CallbackForm
 from .utils import (

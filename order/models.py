@@ -159,6 +159,13 @@ class DigitalDeliveryGroup(DeliveryGroup):
 
     email = models.EmailField()
 
+    def change_status(self, status):
+        for oi in self.items.all():
+            for _ in range(oi.quantity):
+                if hasattr(oi.product, 'deliver'):
+                    oi.product.deliver(self.order)
+        super(DigitalDeliveryGroup, self).change_status(status)
+
     def __unicode__(self):
         return u'Digital delivery'
 

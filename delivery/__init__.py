@@ -25,5 +25,4 @@ class DummyShipping(BaseDelivery):
 
 
 class DigitalDelivery(BaseDelivery):
-
     pass
