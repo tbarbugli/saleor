@@ -11,7 +11,7 @@ django-cms==2.4.2
 django-compressor==1.3
 django-filer==0.9.4
 django-mptt==0.5.2
-git+git@github.com:tbarbugli/django-payments.git@9fe4924ae3e832abee4a8281aca42b7cddae1553#egg=django_payments-dev
+git+git@github.com:tbarbugli/django-payments.git#egg=django_payments
 django-polymorphic==0.5
 django-prices==0.2
 django-qrcode==0.3
