@@ -5,6 +5,22 @@ from .models import Address, AddressBook
 
 
 class AddressForm(forms.ModelForm):
+    default = {
+        'country_area': None,
+        'country': 'IT',
+        'street_address_2': None,
+        'company_name': None,
+        'phone': None
+    }
+
+    def __init__(self, *args, **kwargs):
+        initials = kwargs.get('initial', {})
+        for field, value in self.default.iteritems():
+            initials[field] = value
+        kwargs['initial'] = initials
+        super(AddressForm, self).__init__(*args, **kwargs)
+        for field, value in self.default.iteritems():
+            self.fields[field].widget = forms.HiddenInput()
 
     class Meta:
         model = Address

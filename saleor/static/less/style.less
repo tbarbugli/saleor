@@ -1,5 +1,79 @@
 @import "bootstrap/bootstrap.less";
 
+
+@viganzo_main_color:     #ffcf00;
+
+
 .navbar {
   margin-bottom: 50px;
+}
+
+.main-unit {
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 200;
+  line-height: @baseLineHeight * 1.5;
+  color: @heroUnitLeadColor;
+  border: 1px solid @heroUnitBackground;
+  .border-radius(6px);
+    .offer {
+        backgound-color: black;
+    }
+}
+
+.mini-hero {
+  padding: 10px;
+  padding-bottom: 0px;
+  font-size: 18px;
+  font-weight: 200;
+  color: @heroUnitLeadColor;
+  background-color: @heroUnitBackground;
+  .border-radius(6px);
+  div {
+    padding-bottom: 10px;
+    padding-top: 10px;
+  }
+  form, .control-group {
+    margin-bottom: 0px;
+  }
+}
+
+.center {
+  text-align: center;  
+}
+
+.full-price {
+  text-decoration:line-through;
+}
+
+.price-row {
+  height: 60px;
+  border-bottom: solid 1px #ccc;  
+  border-top: solid 1px #ccc;  
+}
+
+.deal-price {
+  text-shadow: 0 0 1px rgba(0,0,0,0.6),0 1px 1px rgba(0,0,0,0.6);
+  text-rendering: optimizelegibility;
+  font-size: 38px;
+  font-weight: bold;
+  color: @viganzo_main_color;
+}
+
+.footer {
+  text-align: center;
+  padding: 30px 0;
+  margin-top: 70px;
+  border-top: 1px solid #e5e5e5;
+  background: #333333;
+  color: #fff;
+}
+
+.bottom_disclaimer {
+  padding-bottom: 30px;
+  color: #999;
+  font-size: 13px;
+  font-weight: normal;
 }

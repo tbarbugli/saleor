@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load gross from prices %}
+{% load cms_tags sekizai_tags %}
 {% load i18n %}
 
 {% block title %}{{ block.super }} » {% trans "Product" %} » {{ product.name }}{% endblock %}
@@ -16,38 +17,81 @@
 
 {% block outercontent %}
 <div itemscope itemtype="http://schema.org/Product" class="row">
-    <h1 itemprop="name">{{ product }}</h1>
-    <p itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-        Price: <span itemprop="price">{% gross product.price %}</span>
-        {% if product.stock == 0 %}
-        <link itemprop="availability" href="http://schema.org/OutOfStock" />
-        Out of stock
-        {% else %}
-        <link itemprop="availability" href="http://schema.org/InStock" />
-        In stock
-        {% endif %}
-    </p>
-    <form class="form-horizontal" method="post" action=".">
-        {% csrf_token %}
-        <div class="control-group  {{ form.quantity.html_name }}{{ form.quantity.html_name }}{{ form.quantity.html_name }}{% if form.quantity.errors %} error{% endif %}{% if form.quantity.field.required %} required{% endif %}">
-            <label class="control-label" for="inputEmail">{{ form.quantity.label }}</label>
-            <div class="controls">
-                {{ form.quantity }}
-                {% if form.quantity.errors %}
-                {% for error in form.quantity.errors %}
-                <span class="help-inline error">{{ error }}</span>
-                {% endfor %}
-                {% endif %}
+    <div class="span8">
+        <div class="main-unit">
+            <div class="page-header">
+                <h2 itemprop="name">{{ product }}<small>{% show_placeholder "headline" product.product_page %}</small></h1>
+            </div>
+            <div>
+                {% show_placeholder "image_wide" product.product_page %}
+            </div>
+            <div class="offer">
+                L'offerta scade fra:<br><small><b>12 giorni 11 ore</b></small>
             </div>
         </div>
-
-        <div class="control-group">
-            <div class="controls">
-                <button class="btn">
-                    {% trans "Add to cart" %}
-                </button>
+        <div class="tabbable">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab1" data-toggle="tab">La proposta</a></li>
+                <li><a href="#tab2" data-toggle="tab">Il partner</a></li>
+                <li><a href="#tab3" data-toggle="tab">Le condizioni</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+                    {% show_placeholder "offer_text" product.product_page %}
+                </div>
+                <div class="tab-pane" id="tab2">
+                    {% show_placeholder "partner_text" product.product_page %}
+                </div>
+                <div class="tab-pane" id="tab3">
+                    {% show_placeholder "conditions_text" product.product_page %}
+                </div>
             </div>
         </div>
-    </form>
+    </div>
+    <div class="span4 center">
+        <div class="mini-hero">
+            <div style="padding-left:20px;padding-right:20px;">
+                <span class="full-price pull-left">{% gross product.price %}</span>
+                <span class="discount pull-right">Sconto: <b>{{ product.discount }}%</b></span>
+                <br class="clear-fix" />
+            </div>
+            <div class="price-row">
+                <p itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                    Prezzo Viganzo <br>
+                    <p itemprop="price" class="deal-price">{% gross product.price %}</p><br>
+                </p>
+            </div>
+                <div style="display:none;">
+                    {% if product.stock == 0 %}
+                        <link itemprop="availability" href="http://schema.org/OutOfStock" /> Out of stock
+                    {% else %}
+                        <link itemprop="availability" href="http://schema.org/InStock" /> {{ product.stock }} in stock
+                    {% endif %}
+                </div>
+            <div>
+                <form class="form-horizontal" method="post" action=".">
+                    {% csrf_token %}
+                    <div style="display:none;">
+                        <div class="control-group {{ form.quantity.html_name }}{{ form.quantity.html_name }}{{ form.quantity.html_name }}{% if form.quantity.errors %} error{% endif %}{% if form.quantity.field.required %} required{% endif %}">
+                            <label class="control-label" for="inputEmail">{{ form.quantity.label }}</label>
+                            <div class="controls">
+                                {{ form.quantity }}
+                                {% if form.quantity.errors %}
+                                {% for error in form.quantity.errors %}
+                                <span class="help-inline error">{{ error }}</span>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-large btn-primary">
+                            {% trans "Add to cart" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock outercontent %}

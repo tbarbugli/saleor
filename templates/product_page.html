@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    {% placeholder headline %}
+    {% placeholder image_wide %}
+    {% placeholder offer_text %}
+    {% placeholder partner_text %}
+    {% placeholder conditions_text %}
+{% endblock %}

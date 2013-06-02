@@ -1,3 +1,4 @@
+from cms.models.fields import PageField
 from decimal import Decimal
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -115,6 +116,8 @@ class Product(Subtyped, Item):
     category = models.ForeignKey(Category, related_name='products',
                                  verbose_name=pgettext_lazy(u'Product field',
                                                             u'category'))
+
+    product_page = PageField(blank=True, null=True)
 
     def __unicode__(self):
         return self.name

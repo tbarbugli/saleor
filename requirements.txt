@@ -1,2 +1,11 @@
+django==1.5.1
 django-qrcode
-
+git+git://github.com/tbarbugli/django-payments.git#egg=django-payments
+django-cms
+django-filer
+django-reversion
+PIL
+psycopg2
+gunicorn
+dj-database-url
+django-compressor
