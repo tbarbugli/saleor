@@ -1,12 +1,11 @@
 from django.shortcuts import get_object_or_404, redirect
-from order.models import Order
 from functools import wraps
-
 
 def check_order_status(func):
 
     @wraps(func)
     def decorator(*args, **kwargs):
+        from order.models import Order
         token = kwargs.pop('token')
         order = get_object_or_404(Order, token=token)
         if order.status == 'fully-paid':
