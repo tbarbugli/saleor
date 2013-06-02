@@ -144,14 +144,14 @@ INSTALLED_APPS = [
     'saleor',
     'product',
     'cart',
+    'coupon',
     'checkout',
-    'order',
-    'userprofile',
     'registration',
     'payment',
-    'coupon',
     'delivery',
     'qrcode',
+    'userprofile',
+    'order',
 ]
 
 

@@ -1,8 +1,5 @@
-from .steps import (BillingAddressStep, ShippingStep, DigitalDeliveryStep,
-                    SummaryStep)
 from cart import CartPartitioner, DigitalGroup, remove_cart_from_request
 from collections import defaultdict
-from order.models import Order
 from satchless.process import ProcessManager
 
 STORAGE_SESSION_KEY = 'checkout_storage'
@@ -34,6 +31,8 @@ class Checkout(ProcessManager):
         self.generate_steps()
 
     def generate_steps(self):
+        from .steps import (BillingAddressStep, ShippingStep, DigitalDeliveryStep,
+                    SummaryStep)
         self.steps = [BillingAddressStep(self, self.request)]
         for index, delivery_group in enumerate(self.groups):
             step_class = ShippingStep
@@ -88,6 +87,7 @@ class Checkout(ProcessManager):
         return iter(self.steps)
 
     def create_order(self):
+        from order.models import Order
         order = Order()
         for step in self.steps:
             step.add_to_order(order)
