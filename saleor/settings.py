@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     'cart',
     'checkout',
     'order',
+    'userprofile',
     'registration',
     'payment',
     'coupon',
