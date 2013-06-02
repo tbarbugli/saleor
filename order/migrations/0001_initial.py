@@ -11,25 +11,12 @@ class Migration(SchemaMigration):
         # Adding model 'Order'
         db.create_table(u'order_order', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='checkout', max_length=32)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('last_status_change', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, to=orm['auth.User'])),
-            ('billing_first_name', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('billing_last_name', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('billing_company_name', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('billing_street_address_1', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('billing_street_address_2', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('billing_city', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('billing_postal_code', self.gf('django.db.models.fields.CharField')(max_length=20, blank=True)),
-            ('billing_country', self.gf('django.db.models.fields.CharField')(max_length=2, blank=True)),
-            ('billing_country_area', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            ('billing_tax_id', self.gf('django.db.models.fields.CharField')(max_length=40, blank=True)),
-            ('billing_phone', self.gf('django.db.models.fields.CharField')(max_length=30, blank=True)),
-            ('payment_type', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('payment_type_name', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            ('payment_type_description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('payment_price', self.gf('django_prices.models.PriceField')(default=0, currency='USD', max_digits=12, decimal_places=4)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='new', max_length=32)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('last_status_change', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='orders', null=True, to=orm['auth.User'])),
+            ('billing_address', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['userprofile.Address'])),
+            ('anonymous_user_email', self.gf('django.db.models.fields.EmailField')(default='', max_length=75, blank=True)),
             ('token', self.gf('django.db.models.fields.CharField')(default='', max_length=36, blank=True)),
         ))
         db.send_create_signal(u'order', ['Order'])
@@ -37,24 +24,25 @@ class Migration(SchemaMigration):
         # Adding model 'DeliveryGroup'
         db.create_table(u'order_deliverygroup', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='new', max_length=32)),
             ('order', self.gf('django.db.models.fields.related.ForeignKey')(related_name='groups', to=orm['order.Order'])),
-            ('delivery_price', self.gf('django_prices.models.PriceField')(default=0, currency='USD', max_digits=12, decimal_places=4)),
-            ('delivery_type', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('delivery_type_name', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            ('delivery_type_description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('require_shipping_address', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('shipping_first_name', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('shipping_last_name', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('shipping_company_name', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('shipping_street_address_1', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('shipping_street_address_2', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
-            ('shipping_city', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('shipping_postal_code', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('shipping_country', self.gf('django.db.models.fields.CharField')(max_length=2, blank=True)),
-            ('shipping_country_area', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            ('shipping_phone', self.gf('django.db.models.fields.CharField')(max_length=30, blank=True)),
+            ('price', self.gf('django_prices.models.PriceField')(default=0, currency='EUR', max_digits=12, decimal_places=4)),
         ))
         db.send_create_signal(u'order', ['DeliveryGroup'])
+
+        # Adding model 'ShippedDeliveryGroup'
+        db.create_table(u'order_shippeddeliverygroup', (
+            (u'deliverygroup_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['order.DeliveryGroup'], unique=True, primary_key=True)),
+            ('address', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['userprofile.Address'])),
+        ))
+        db.send_create_signal(u'order', ['ShippedDeliveryGroup'])
+
+        # Adding model 'DigitalDeliveryGroup'
+        db.create_table(u'order_digitaldeliverygroup', (
+            (u'deliverygroup_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['order.DeliveryGroup'], unique=True, primary_key=True)),
+            ('email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
+        ))
+        db.send_create_signal(u'order', ['DigitalDeliveryGroup'])
 
         # Adding model 'OrderedItem'
         db.create_table(u'order_ordereditem', (
@@ -75,6 +63,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'DeliveryGroup'
         db.delete_table(u'order_deliverygroup')
+
+        # Deleting model 'ShippedDeliveryGroup'
+        db.delete_table(u'order_shippeddeliverygroup')
+
+        # Deleting model 'DigitalDeliveryGroup'
+        db.delete_table(u'order_digitaldeliverygroup')
 
         # Deleting model 'OrderedItem'
         db.delete_table(u'order_ordereditem')
@@ -110,6 +104,40 @@ class Migration(SchemaMigration):
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
+        'cms.page': {
+            'Meta': {'ordering': "('tree_id', 'lft')", 'object_name': 'Page'},
+            'changed_by': ('django.db.models.fields.CharField', [], {'max_length': '70'}),
+            'changed_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'created_by': ('django.db.models.fields.CharField', [], {'max_length': '70'}),
+            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'in_navigation': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'db_index': 'True'}),
+            'level': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
+            'lft': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
+            'limit_visibility_in_menu': ('django.db.models.fields.SmallIntegerField', [], {'default': 'None', 'null': 'True', 'db_index': 'True', 'blank': 'True'}),
+            'login_required': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'navigation_extenders': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '80', 'null': 'True', 'blank': 'True'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': "orm['cms.Page']"}),
+            'placeholders': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['cms.Placeholder']", 'symmetrical': 'False'}),
+            'publication_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
+            'publication_end_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
+            'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'publisher_is_draft': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'db_index': 'True'}),
+            'publisher_public': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'publisher_draft'", 'unique': 'True', 'null': 'True', 'to': "orm['cms.Page']"}),
+            'publisher_state': ('django.db.models.fields.SmallIntegerField', [], {'default': '0', 'db_index': 'True'}),
+            'reverse_id': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '40', 'null': 'True', 'blank': 'True'}),
+            'rght': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
+            'site': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['sites.Site']"}),
+            'soft_root': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'db_index': 'True'}),
+            'template': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'tree_id': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'})
+        },
+        'cms.placeholder': {
+            'Meta': {'object_name': 'Placeholder'},
+            'default_width': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'slot': ('django.db.models.fields.CharField', [], {'max_length': '50', 'db_index': 'True'})
+        },
         u'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -119,47 +147,26 @@ class Migration(SchemaMigration):
         },
         u'order.deliverygroup': {
             'Meta': {'object_name': 'DeliveryGroup'},
-            'delivery_price': ('django_prices.models.PriceField', [], {'default': '0', 'currency': "'USD'", 'max_digits': '12', 'decimal_places': '4'}),
-            'delivery_type': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'delivery_type_description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'delivery_type_name': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'groups'", 'to': u"orm['order.Order']"}),
-            'require_shipping_address': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'shipping_city': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'shipping_company_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'shipping_country': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
-            'shipping_country_area': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'shipping_first_name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'shipping_last_name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'shipping_phone': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'shipping_postal_code': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
-            'shipping_street_address_1': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'shipping_street_address_2': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'})
+            'price': ('django_prices.models.PriceField', [], {'default': '0', 'currency': "'EUR'", 'max_digits': '12', 'decimal_places': '4'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'new'", 'max_length': '32'})
+        },
+        u'order.digitaldeliverygroup': {
+            'Meta': {'object_name': 'DigitalDeliveryGroup', '_ormbases': [u'order.DeliveryGroup']},
+            u'deliverygroup_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['order.DeliveryGroup']", 'unique': 'True', 'primary_key': 'True'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'})
         },
         u'order.order': {
             'Meta': {'ordering': "('-last_status_change',)", 'object_name': 'Order'},
-            'billing_city': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'billing_company_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'billing_country': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
-            'billing_country_area': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'billing_first_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'billing_last_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'billing_phone': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'billing_postal_code': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
-            'billing_street_address_1': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'billing_street_address_2': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'billing_tax_id': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'anonymous_user_email': ('django.db.models.fields.EmailField', [], {'default': "''", 'max_length': '75', 'blank': 'True'}),
+            'billing_address': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['userprofile.Address']"}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_status_change': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'payment_price': ('django_prices.models.PriceField', [], {'default': '0', 'currency': "'USD'", 'max_digits': '12', 'decimal_places': '4'}),
-            'payment_type': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'payment_type_description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'payment_type_name': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'checkout'", 'max_length': '32'}),
+            'last_status_change': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'new'", 'max_length': '32'}),
             'token': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '36', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'orders'", 'null': 'True', 'to': u"orm['auth.User']"})
         },
         u'order.ordereditem': {
             'Meta': {'object_name': 'OrderedItem'},
@@ -170,6 +177,11 @@ class Migration(SchemaMigration):
             'quantity': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '4'}),
             'unit_price_gross': ('django.db.models.fields.DecimalField', [], {'max_digits': '12', 'decimal_places': '4'}),
             'unit_price_net': ('django.db.models.fields.DecimalField', [], {'max_digits': '12', 'decimal_places': '4'})
+        },
+        u'order.shippeddeliverygroup': {
+            'Meta': {'object_name': 'ShippedDeliveryGroup', '_ormbases': [u'order.DeliveryGroup']},
+            'address': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['userprofile.Address']"}),
+            u'deliverygroup_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['order.DeliveryGroup']", 'unique': 'True', 'primary_key': 'True'})
         },
         u'product.category': {
             'Meta': {'object_name': 'Category'},
@@ -188,9 +200,29 @@ class Migration(SchemaMigration):
             'category': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'products'", 'to': u"orm['product.Category']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'price': ('django_prices.models.PriceField', [], {'currency': "'USD'", 'max_digits': '12', 'decimal_places': '4'}),
-            'stock': ('django.db.models.fields.DecimalField', [], {'default': "'1'", 'max_digits': '10', 'decimal_places': '4'}),
-            'subtype_attr': ('django.db.models.fields.CharField', [], {'max_length': '500'})
+            'price': ('django_prices.models.PriceField', [], {'currency': "'EUR'", 'max_digits': '12', 'decimal_places': '4'}),
+            'product_page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cms.Page']", 'null': 'True', 'blank': 'True'}),
+            'sku': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'})
+        },
+        u'sites.site': {
+            'Meta': {'ordering': "('domain',)", 'object_name': 'Site', 'db_table': "'django_site'"},
+            'domain': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'userprofile.address': {
+            'Meta': {'object_name': 'Address'},
+            'city': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'company_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
+            'country': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
+            'country_area': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
+            'phone': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'postal_code': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'street_address_1': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'street_address_2': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'})
         }
     }
 

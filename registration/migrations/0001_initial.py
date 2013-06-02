@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import datetime
 from south.db import db
 from south.v2 import SchemaMigration
+from django.db import models
 
 
 class Migration(SchemaMigration):
@@ -9,76 +11,107 @@ class Migration(SchemaMigration):
         # Adding model 'ExternalUserData'
         db.create_table(u'registration_externaluserdata', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='external_ids', null=True, to=orm['userprofile.User'])),
-            ('provider', self.gf('django.db.models.fields.TextField')(db_index=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='external_ids', to=orm['auth.User'])),
+            ('service', self.gf('django.db.models.fields.TextField')(db_index=True)),
             ('username', self.gf('django.db.models.fields.TextField')(db_index=True)),
         ))
         db.send_create_signal(u'registration', ['ExternalUserData'])
 
-        # Adding unique constraint on 'ExternalUserData', fields ['provider', 'username']
-        db.create_unique(u'registration_externaluserdata', ['provider', 'username'])
+        # Adding unique constraint on 'ExternalUserData', fields ['service', 'username']
+        db.create_unique(u'registration_externaluserdata', ['service', 'username'])
 
-        # Adding model 'EmailConfirmation'
-        db.create_table(u'registration_emailconfirmation', (
+        # Adding model 'EmailConfirmationRequest'
+        db.create_table(u'registration_emailconfirmationrequest', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('token', self.gf('django.db.models.fields.CharField')(unique=True, max_length=32)),
+            ('valid_until', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2013, 6, 5, 0, 0))),
             ('email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
-            ('external_user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['registration.ExternalUserData'], null=True, blank=True)),
-            ('token', self.gf('django.db.models.fields.CharField')(default='fb6dec3a6c950f197b3689abed128511', max_length=32)),
         ))
-        db.send_create_signal(u'registration', ['EmailConfirmation'])
+        db.send_create_signal(u'registration', ['EmailConfirmationRequest'])
+
+        # Adding model 'EmailChangeRequest'
+        db.create_table(u'registration_emailchangerequest', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('token', self.gf('django.db.models.fields.CharField')(unique=True, max_length=32)),
+            ('valid_until', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2013, 6, 5, 0, 0))),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='email_change_requests', to=orm['auth.User'])),
+            ('email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
+        ))
+        db.send_create_signal(u'registration', ['EmailChangeRequest'])
+
 
     def backwards(self, orm):
-        # Removing unique constraint on 'ExternalUserData', fields ['provider', 'username']
-        db.delete_unique(u'registration_externaluserdata', ['provider', 'username'])
+        # Removing unique constraint on 'ExternalUserData', fields ['service', 'username']
+        db.delete_unique(u'registration_externaluserdata', ['service', 'username'])
 
         # Deleting model 'ExternalUserData'
         db.delete_table(u'registration_externaluserdata')
 
-        # Deleting model 'EmailConfirmation'
-        db.delete_table(u'registration_emailconfirmation')
+        # Deleting model 'EmailConfirmationRequest'
+        db.delete_table(u'registration_emailconfirmationrequest')
+
+        # Deleting model 'EmailChangeRequest'
+        db.delete_table(u'registration_emailchangerequest')
+
 
     models = {
-        u'registration.emailconfirmation': {
-            'Meta': {'object_name': 'EmailConfirmation'},
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            'external_user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['registration.ExternalUserData']", 'null': 'True', 'blank': 'True'}),
+        u'auth.group': {
+            'Meta': {'object_name': 'Group'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'token': ('django.db.models.fields.CharField', [], {'default': "'d6caab5d000f3da9a6504d6ab70f755b'", 'max_length': '32'})
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
+            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
         },
-        u'registration.externaluserdata': {
-            'Meta': {'unique_together': "(('provider', 'username'),)", 'object_name': 'ExternalUserData'},
+        u'auth.permission': {
+            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
+            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'provider': ('django.db.models.fields.TextField', [], {'db_index': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'external_ids'", 'null': 'True', 'to': u"orm['userprofile.User']"}),
-            'username': ('django.db.models.fields.TextField', [], {'db_index': 'True'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        u'userprofile.address': {
-            'Meta': {'unique_together': "(('user', 'alias'),)", 'object_name': 'Address'},
-            'alias': ('django.db.models.fields.CharField', [], {'default': "u'Home'", 'max_length': '30'}),
-            'city': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'company_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'country': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
-            'country_area': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'phone': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'postal_code': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
-            'street_address_1': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'street_address_2': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'addressbook'", 'to': u"orm['userprofile.User']"})
-        },
-        u'userprofile.user': {
+        u'auth.user': {
             'Meta': {'object_name': 'User'},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'default_billing_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['userprofile.Address']"}),
-            'default_shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['userprofile.Address']"}),
-            'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '75'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True'})
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
+        },
+        u'contenttypes.contenttype': {
+            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
+            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'registration.emailchangerequest': {
+            'Meta': {'object_name': 'EmailChangeRequest'},
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'token': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'email_change_requests'", 'to': u"orm['auth.User']"}),
+            'valid_until': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 6, 5, 0, 0)'})
+        },
+        u'registration.emailconfirmationrequest': {
+            'Meta': {'object_name': 'EmailConfirmationRequest'},
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'token': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'}),
+            'valid_until': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 6, 5, 0, 0)'})
+        },
+        u'registration.externaluserdata': {
+            'Meta': {'unique_together': "[['service', 'username']]", 'object_name': 'ExternalUserData'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'service': ('django.db.models.fields.TextField', [], {'db_index': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'external_ids'", 'to': u"orm['auth.User']"}),
+            'username': ('django.db.models.fields.TextField', [], {'db_index': 'True'})
         }
     }
 
