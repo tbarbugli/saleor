@@ -129,6 +129,12 @@
             <script src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
             <script src="{{ STATIC_URL }}js/bootstrap-tooltip.js"></script>
             <script src="{{ STATIC_URL }}js/bootstrap-popover.js"></script>
+            <script type="text/javascript">
+                $().ready(function(){
+                    $('.dropdown-toggle').dropdown();
+                    {% block jquery_ready %}{% endblock %}
+                });
+            </script>
         {% endaddtoblock %}
         {% render_block 'js' postprocessor "utils.seizaki_compress" %}
     </body>
